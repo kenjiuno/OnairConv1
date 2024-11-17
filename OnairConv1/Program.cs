@@ -73,6 +73,7 @@ namespace OnairConv1
                 scriptObject["html"] = new HtmlFunctions();
                 scriptObject["string"] = new StringFunctions();
                 scriptObject["stroke_hr"] = new StrokeHrConverter();
+                scriptObject["strip_duplicated_whitespaces"] = new StripDupWs();
                 var templateContext = new TemplateContext(
                     scriptObject
                 );
@@ -167,6 +168,37 @@ namespace OnairConv1
                 var count = title.Length + title.Count(it => 0x100 <= it || it == ' ');
 
                 return string.Concat(Enumerable.Repeat(symbol, count));
+            }
+
+            public async ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class StripDupWs : IScriptCustomFunction
+        {
+            public int RequiredParameterCount => 1;
+            public int ParameterCount => 1;
+            public ScriptVarParamKind VarParamKind => ScriptVarParamKind.Direct;
+            public Type ReturnType => typeof(string);
+
+            public ScriptParameterInfo GetParameterInfo(int index)
+            {
+                if (index == 0)
+                {
+                    return new ScriptParameterInfo(typeof(string), "text");
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            public object Invoke(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+            {
+                var input = Regex.Replace(arguments[0] + "", "\\s+", " ");
+                return Regex.Replace(input, "\\s+", " ");
             }
 
             public async ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
