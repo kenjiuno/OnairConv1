@@ -72,6 +72,7 @@ namespace OnairConv1
                 scriptObject["link_converter"] = new LinkConverter();
                 scriptObject["html"] = new HtmlFunctions();
                 scriptObject["string"] = new StringFunctions();
+                scriptObject["stroke_hr"] = new StrokeHrConverter();
                 var templateContext = new TemplateContext(
                     scriptObject
                 );
@@ -127,6 +128,45 @@ namespace OnairConv1
                 {
                     return input;
                 }
+            }
+
+            public async ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class StrokeHrConverter : IScriptCustomFunction
+        {
+            public int RequiredParameterCount => 2;
+            public int ParameterCount => 2;
+            public ScriptVarParamKind VarParamKind => ScriptVarParamKind.Direct;
+            public Type ReturnType => typeof(string);
+
+            public ScriptParameterInfo GetParameterInfo(int index)
+            {
+                if (index == 0)
+                {
+                    return new ScriptParameterInfo(typeof(string), "title");
+                }
+                else if (index == 1)
+                {
+                    return new ScriptParameterInfo(typeof(string), "symbol");
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            public object Invoke(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+            {
+                var title = Regex.Replace(arguments[0] + "", "\\s+", " ");
+                var symbol = Regex.Replace(arguments[1] + "", "\\s+", " ");
+
+                var count = title.Length + title.Count(it => 0x100 <= it || it == ' ');
+
+                return string.Concat(Enumerable.Repeat(symbol, count));
             }
 
             public async ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
