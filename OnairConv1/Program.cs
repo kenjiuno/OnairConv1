@@ -63,13 +63,15 @@ namespace OnairConv1
                     ) ?? throw new NullReferenceException());
 
                 var template = Template.Parse(
-                    File.ReadAllText($"RstTemplates/{opt.TemplateIn}.txt")
+                    File.ReadAllText(
+                        Path.Combine(AppContext.BaseDirectory, $"RstTemplates/{opt.TemplateIn}.txt")
+                    )
                 );
                 var scriptObject = new ScriptObject();
                 scriptObject["root"] = root;
-                scriptObject["link_converter"] = new LinkConverter(); 
-                scriptObject["html"] = new HtmlFunctions(); 
-                scriptObject["string"] = new StringFunctions(); 
+                scriptObject["link_converter"] = new LinkConverter();
+                scriptObject["html"] = new HtmlFunctions();
+                scriptObject["string"] = new StringFunctions();
                 var templateContext = new TemplateContext(
                     scriptObject
                 );
@@ -114,7 +116,7 @@ namespace OnairConv1
                     int center = input.IndexOf("](");
                     if (0 <= center)
                     {
-                        return $"`{input.Substring(1, center - 1)} <{input.Substring(center + 2, input.Length - (center + 2))}>`_";
+                        return $"`{input.Substring(1, center - 1)} <{input.Substring(center + 2, input.Length - 1 - (center + 2))}>`_";
                     }
                     else
                     {
