@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OnairConv1": {
+      "commandName": "Project",
+      "commandLineArgs": "convert H:\\Proj\\kkdf2\\source\\雑記\\archives\\onairconv1.xml H:\\Proj\\kkdf2\\source\\雑記\\archives\\kaf_onair.rst"
+    }
+  }
+}
