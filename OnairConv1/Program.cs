@@ -295,15 +295,14 @@ namespace OnairConv1
 
             public object? Invoke(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
             {
-                var match = Regex.Match(arguments[0] + "", "\\d{4}-\\d{2}-\\d{2}");
-                if (match.Success)
-                {
-                    return $"{match.ValueSpan}({DateTime.Parse(match.Value).ToString("ddd", CultureInfo.GetCultureInfo("ja-jp"))})";
-                }
-                else
-                {
-                    return arguments[0] + "";
-                }
+                return Regex.Replace(
+                    arguments[0] + "",
+                    "\\d{4}-\\d{2}-\\d{2}",
+                    match =>
+                    {
+                        return $"{match.ValueSpan}({DateTime.Parse(match.Value).ToString("ddd", CultureInfo.GetCultureInfo("ja-jp"))})";
+                    }
+                );
             }
 
             public ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
