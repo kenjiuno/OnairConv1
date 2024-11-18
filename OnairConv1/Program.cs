@@ -27,6 +27,9 @@ namespace OnairConv1
 
             [Option("template", Default = "kaf_onair")]
             public string TemplateIn { get; set; } = null!;
+
+            [Option("no-timestamp", HelpText = "No twitter timestamp extraction")]
+            public bool NoTimestamp { get; set; }
         }
 
         [Verb("dummy")]
@@ -70,7 +73,7 @@ namespace OnairConv1
                 );
                 var scriptObject = new ScriptObject();
                 scriptObject["root"] = root;
-                scriptObject["single_markdown_link_to_rst"] = new LinkConverter();
+                scriptObject["single_markdown_link_to_rst"] = new LinkConverter(opt.NoTimestamp);
                 scriptObject["html"] = new HtmlFunctions();
                 scriptObject["string"] = new StringFunctions();
                 scriptObject["with_heading"] = new StrokeHrConverter();
@@ -97,10 +100,17 @@ namespace OnairConv1
         /// </summary>
         private class LinkConverter : IScriptCustomFunction
         {
+            private readonly bool _noTimestamp;
+
             public int RequiredParameterCount => 1;
             public int ParameterCount => 1;
             public ScriptVarParamKind VarParamKind => ScriptVarParamKind.Direct;
             public Type ReturnType => typeof(string);
+
+            public LinkConverter(bool noTimestamp)
+            {
+                _noTimestamp = noTimestamp;
+            }
 
             public ScriptParameterInfo GetParameterInfo(int index)
             {
@@ -122,7 +132,9 @@ namespace OnairConv1
                     int center = input.IndexOf("](");
                     if (0 <= center)
                     {
-                        return $"`{input.Substring(1, center - 1)} <{input.Substring(center + 2, input.Length - 1 - (center + 2))}>`_";
+                        var when = Helper.TryToExtractTwitterUrlTimestamp(input)?.ToLocalTime();
+
+                        return $"`{input.Substring(1, center - 1)} <{input.Substring(center + 2, input.Length - 1 - (center + 2))}>`_{((!_noTimestamp && when.HasValue) ? $" :subscript:`({when:yyyy/M/d HH:mm})`" : "")}";
                     }
                     else
                     {
@@ -308,6 +320,24 @@ namespace OnairConv1
             public ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
             {
                 throw new NotImplementedException();
+            }
+        }
+
+        private class Helper
+        {
+            public static DateTime? TryToExtractTwitterUrlTimestamp(string url)
+            {
+                // https://x.com/XXX/status/1111111111111111111
+                var match = Regex.Match(url, "https://x\\.com/\\w+/status/(?<ts>\\d+)");
+                if (match.Success)
+                {
+                    var ts = long.Parse(match.Groups["ts"].Value);
+                    return new DateTime(2010, 11, 4, 1, 42, 54, 657, DateTimeKind.Utc).AddSeconds((ts >> 22) / 1000);
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
     }
