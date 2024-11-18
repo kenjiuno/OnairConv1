@@ -6,6 +6,7 @@ using Scriban;
 using Scriban.Functions;
 using Scriban.Runtime;
 using Scriban.Syntax;
+using System.Globalization;
 using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
@@ -76,6 +77,7 @@ namespace OnairConv1
                 scriptObject["strip_duplicated_whitespaces"] = new StripDupWs();
                 scriptObject["sort_links_by_timestamp_desc"] = new SortLinksByTimestampDesc();
                 scriptObject["object"] = new ObjectFunctions();
+                scriptObject["attach_weekday"] = new AttachWeekday();
                 var templateContext = new TemplateContext(
                     scriptObject
                 );
@@ -133,7 +135,9 @@ namespace OnairConv1
                 }
             }
 
+#pragma warning disable CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
             public async ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+#pragma warning restore CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
             {
                 throw new NotImplementedException();
             }
@@ -172,7 +176,9 @@ namespace OnairConv1
                 return title + "\n" + string.Concat(Enumerable.Repeat(symbol, count));
             }
 
+#pragma warning disable CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
             public async ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+#pragma warning restore CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
             {
                 throw new NotImplementedException();
             }
@@ -203,7 +209,9 @@ namespace OnairConv1
                 return Regex.Replace(input, "\\s+", " ");
             }
 
+#pragma warning disable CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
             public async ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+#pragma warning restore CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
             {
                 throw new NotImplementedException();
             }
@@ -231,7 +239,6 @@ namespace OnairConv1
 
             public object? Invoke(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
             {
-                // https://x.com/XXX/status/1852668004997452221
                 var array = (IEnumerable<string>)arguments[0];
                 if (array != null)
                 {
@@ -239,8 +246,17 @@ namespace OnairConv1
                         .OrderByDescending(
                             one =>
                             {
-                                long.TryParse(one.Split('/').Last(), out long tweetId);
-                                return tweetId >> 22;
+                                // https://x.com/XXX/status/1111111111111111111
+                                var match = Regex.Match(one, "https://x\\.com/\\w+/status/(?<ts>\\d+)");
+                                if (match.Success)
+                                {
+                                    var ts = long.Parse(match.Groups["ts"].Value);
+                                    return ts >> 22;
+                                }
+                                else
+                                {
+                                    return 0;
+                                }
                             }
                         )
                         .ToArray();
@@ -248,6 +264,45 @@ namespace OnairConv1
                 else
                 {
                     return null;
+                }
+            }
+
+            public ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class AttachWeekday : IScriptCustomFunction
+        {
+            public int RequiredParameterCount => 1;
+            public int ParameterCount => 1;
+            public ScriptVarParamKind VarParamKind => ScriptVarParamKind.Direct;
+
+            public Type ReturnType => typeof(string);
+
+            public ScriptParameterInfo GetParameterInfo(int index)
+            {
+                if (index == 0)
+                {
+                    return new ScriptParameterInfo(typeof(string), "text");
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            public object? Invoke(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+            {
+                var match = Regex.Match(arguments[0] + "", "\\d{4}-\\d{2}-\\d{2}");
+                if (match.Success)
+                {
+                    return $"{match.ValueSpan}({DateTime.Parse(match.Value).ToString("ddd", CultureInfo.GetCultureInfo("ja-jp"))})";
+                }
+                else
+                {
+                    return arguments[0] + "";
                 }
             }
 
