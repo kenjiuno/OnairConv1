@@ -12,7 +12,7 @@
 {{ for th in e.th }}`{{th}} <https://x.com/hashtag/{{th | string.remove_first '#' | html.url_encode}}>`_ {{ end }}
 {{ for pl in e.pl}}📍{{pl}}{{end}}
 
-{{ for l in e.l -}}
-* {{ l | link_converter }}
+{{ for l in sort_links_by_timestamp_desc(e.l) -}}
+* {{ l | single_markdown_link_to_rst }}
 {{ end }}
 {{ end }}

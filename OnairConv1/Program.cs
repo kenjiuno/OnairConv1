@@ -69,11 +69,12 @@ namespace OnairConv1
                 );
                 var scriptObject = new ScriptObject();
                 scriptObject["root"] = root;
-                scriptObject["link_converter"] = new LinkConverter();
+                scriptObject["single_markdown_link_to_rst"] = new LinkConverter();
                 scriptObject["html"] = new HtmlFunctions();
                 scriptObject["string"] = new StringFunctions();
                 scriptObject["stroke_hr"] = new StrokeHrConverter();
                 scriptObject["strip_duplicated_whitespaces"] = new StripDupWs();
+                scriptObject["sort_links_by_timestamp_desc"] = new SortLinksByTimestampDesc();
                 var templateContext = new TemplateContext(
                     scriptObject
                 );
@@ -202,6 +203,54 @@ namespace OnairConv1
             }
 
             public async ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class SortLinksByTimestampDesc : IScriptCustomFunction
+        {
+            public int RequiredParameterCount => 1;
+            public int ParameterCount => 1;
+            public ScriptVarParamKind VarParamKind => ScriptVarParamKind.Direct;
+
+            public Type ReturnType => typeof(string[]);
+
+            public ScriptParameterInfo GetParameterInfo(int index)
+            {
+                if (index == 0)
+                {
+                    return new ScriptParameterInfo(typeof(string[]), "array");
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            public object? Invoke(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+            {
+                // https://x.com/XXX/status/1852668004997452221
+                var array = (IEnumerable<string>)arguments[0];
+                if (array != null)
+                {
+                    return array
+                        .OrderByDescending(
+                            one =>
+                            {
+                                long.TryParse(one.Split('/').Last(), out long tweetId);
+                                return tweetId >> 22;
+                            }
+                        )
+                        .ToArray();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            public ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
             {
                 throw new NotImplementedException();
             }
