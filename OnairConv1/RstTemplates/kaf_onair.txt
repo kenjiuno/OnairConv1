@@ -10,7 +10,11 @@
 {{ for th in e.th }}`{{th}} <https://x.com/hashtag/{{ th | string.remove_first '#' | html.url_encode }}>`_ {{ end }}
 {{ for pl in e.pl }}📍{{pl}} {{end}}
 
-{{ for l in sort_links_by_timestamp_desc(e.l) -}}
-* {{ l | single_markdown_link_to_rst }}
+{{ if e.l -}}
+.. collapse:: {{ e.l.size }} {{ e.l.size | string.pluralize 'link' 'links' }}
+
+{{ for l in sort_links_by_timestamp_desc(e.l) }}   * {{ l | single_markdown_link_to_rst }}
 {{ end }}
+{{ end }}
+|
 {{ end }}
