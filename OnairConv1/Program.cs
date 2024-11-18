@@ -75,6 +75,7 @@ namespace OnairConv1
                 scriptObject["stroke_hr"] = new StrokeHrConverter();
                 scriptObject["strip_duplicated_whitespaces"] = new StripDupWs();
                 scriptObject["sort_links_by_timestamp_desc"] = new SortLinksByTimestampDesc();
+                scriptObject["object"] = new ObjectFunctions();
                 var templateContext = new TemplateContext(
                     scriptObject
                 );

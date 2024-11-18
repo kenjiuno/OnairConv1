@@ -5,7 +5,7 @@
 
 :download:`onairconv1.xml <onairconv1.xml>`
 {{ for e in root.e }}
-{{ e.n | strip_duplicated_whitespaces }}
+{{ e.n | strip_duplicated_whitespaces | object.default 'UNTITLED!' }}
 {{ e.n | stroke_hr '-' }}
 
 📅 {{ e.d }}
