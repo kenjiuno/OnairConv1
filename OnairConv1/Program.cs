@@ -72,7 +72,7 @@ namespace OnairConv1
                 scriptObject["single_markdown_link_to_rst"] = new LinkConverter();
                 scriptObject["html"] = new HtmlFunctions();
                 scriptObject["string"] = new StringFunctions();
-                scriptObject["stroke_hr"] = new StrokeHrConverter();
+                scriptObject["with_heading"] = new StrokeHrConverter();
                 scriptObject["strip_duplicated_whitespaces"] = new StripDupWs();
                 scriptObject["sort_links_by_timestamp_desc"] = new SortLinksByTimestampDesc();
                 scriptObject["object"] = new ObjectFunctions();
@@ -169,7 +169,7 @@ namespace OnairConv1
 
                 var count = title.Length + title.Count(it => 0x100 <= it || it == ' ');
 
-                return string.Concat(Enumerable.Repeat(symbol, count));
+                return title + "\n" + string.Concat(Enumerable.Repeat(symbol, count));
             }
 
             public async ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
