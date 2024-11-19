@@ -81,6 +81,8 @@ namespace OnairConv1
                 scriptObject["sort_links_by_timestamp_desc"] = new SortLinksByTimestampDesc();
                 scriptObject["object"] = new ObjectFunctions();
                 scriptObject["attach_weekday"] = new AttachWeekday();
+                scriptObject["last_updated"] = DateTime.Now;
+                scriptObject["date"] = new DateTimeFunctions();
                 var templateContext = new TemplateContext(
                     scriptObject
                 );
