@@ -20,6 +20,11 @@ namespace OnairConv1.Models
         [XmlElement] public string? n { get; set; }
 
         /// <summary>
+        /// participation type
+        /// </summary>
+        [XmlElement] public string? t { get; set; }
+
+        /// <summary>
         /// markdown'ed links
         /// </summary>
         [XmlElement] public string[]? l { get; set; }
