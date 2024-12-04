@@ -22,7 +22,7 @@ namespace OnairConv1.Models
         /// <summary>
         /// participation type
         /// </summary>
-        [XmlElement] public string? t { get; set; }
+        [XmlElement] public string[]? pt { get; set; }
 
         /// <summary>
         /// markdown'ed links
