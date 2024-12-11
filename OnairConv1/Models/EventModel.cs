@@ -38,5 +38,11 @@ namespace OnairConv1.Models
         /// 物理 開催場所
         /// </summary>
         [XmlElement] public string[]? pl { get; set; }
+
+        /// <summary>
+        /// 公開終了日時
+        /// </summary>
+        [XmlElement] public string? ed { get; set; }
+
     }
 }

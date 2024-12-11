@@ -83,6 +83,7 @@ namespace OnairConv1
                 scriptObject["attach_weekday"] = new AttachWeekday();
                 scriptObject["last_updated"] = File.GetLastWriteTime(opt.XmlFileIn);
                 scriptObject["date"] = new DateTimeFunctions();
+                scriptObject["is_ended"] = new IsEnded();
                 var templateContext = new TemplateContext(
                     scriptObject
                 );
@@ -342,5 +343,39 @@ namespace OnairConv1
                 }
             }
         }
+
+        private class IsEnded : IScriptCustomFunction
+        {
+            public int RequiredParameterCount => 1;
+            public int ParameterCount => 1;
+            public ScriptVarParamKind VarParamKind => ScriptVarParamKind.Direct;
+            public Type ReturnType => typeof(bool);
+
+            public ScriptParameterInfo GetParameterInfo(int index)
+            {
+                if (index == 0)
+                {
+                    return new ScriptParameterInfo(typeof(string), "dateTime");
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            public object Invoke(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+            {
+                var input = "" + arguments[0];
+                return DateTime.TryParse(input, out DateTime then) && then < DateTime.Now;
+            }
+
+#pragma warning disable CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
+            public async ValueTask<object> InvokeAsync(TemplateContext context, ScriptNode callerContext, ScriptArray arguments, ScriptBlockStatement blockStatement)
+#pragma warning restore CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
+            {
+                throw new NotImplementedException();
+            }
+        }
+
     }
 }

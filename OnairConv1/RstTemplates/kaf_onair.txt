@@ -8,7 +8,7 @@ This page, last updated: {{ last_updated | date.to_string '%Y-%m-%dT%H:%M:%S%Z' 
 {{ for e in root.e }}
 {{ e.n | strip_duplicated_whitespaces | object.default 'UNTITLED!' | with_heading '-' }}
 
-📅 {{ e.d | attach_weekday }} {{ for pt in e.pt }}〔{{ pt }}〕{{ end }} {{ for th in e.th }}`{{th}} <https://x.com/hashtag/{{ th | string.remove_first '#' | html.url_encode }}>`_ {{ end }} {{ for pl in e.pl }}📍{{pl}} {{end}}
+📅 {{ e.d | attach_weekday }} {{ if e.ed }}～ {{ e.ed | attach_weekday }} {{ if is_ended e.ed }} ⚠ 公開終了 {{ end }} {{ end }} {{ for pt in e.pt }}〔{{ pt }}〕{{ end }} {{ for th in e.th }}`{{th}} <https://x.com/hashtag/{{ th | string.remove_first '#' | html.url_encode }}>`_ {{ end }} {{ for pl in e.pl }}📍{{pl}} {{end}}
 
 {{ if e.l -}}
 .. collapse:: {{ e.l.size }} {{ e.l.size | string.pluralize 'link' 'links' }}
